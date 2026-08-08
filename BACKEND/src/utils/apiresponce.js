@@ -5,4 +5,4 @@ class apiresponce {
         this.data = data;
     }
 }
- export default apiresponce;
+ export {apiresponse};
