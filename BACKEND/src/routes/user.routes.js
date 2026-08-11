@@ -6,9 +6,8 @@ import { registerUser } from "../controllers/user.controllers.js";
 
 const router = Router();
 router.route("/register").post(
-    upload.fields([
-        { name: "avatar", maxCount: 1 },
-        { name: "cover", maxCount: 1 }, 
-    ]),registerUser);
+    upload.any(),
+    registerUser
+);
 
 export default router;
