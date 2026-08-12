@@ -44,7 +44,7 @@ password:{
     type: String,
     required: [true,' Passwod is Required'],
 },
-refreshTokens:{
+refreshToken:{
     type: String,
 },
 },{
@@ -62,7 +62,7 @@ userSchema.methods.isPasswordCorrect = async function(password){
 
 userSchema.methods.generateAccessToken = function(){
     const payload = {
-        id: this._id,  
+        _id: this._id,  
         email: this.email,
         username:this.username,
         fullname:this.fullname, 
@@ -71,8 +71,14 @@ userSchema.methods.generateAccessToken = function(){
         expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
     });
 };
- userSchema.methods.generateRefreshToken = function(){
+userSchema.methods.generateRefreshToken = function(){
     const payload = {
-        id: this._id,   }}
+        _id: this._id,
+    };
+
+    return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+    });
+};
 
 export const User = mongoose.model("User", userSchema);   
