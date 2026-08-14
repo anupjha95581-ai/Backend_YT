@@ -276,7 +276,7 @@ $set: {
 return res.status(200).json(new ApiResponse(200,"Cover image updated successfully",{user}))
 })
 
-const getUserChannelProfile = aynchandler(async(req,res)=>{
+const getUserChannelProfile = asynchandler(async(req,res)=>{
 const {username} = req.params
 if(!username?.trim()){
     throw new ApiError(400,"username is required")}
@@ -341,6 +341,55 @@ if(!username?.trim()){
   .json(new ApiResponse(200,"Channel profile fetched successfully",{channel: channel[0]}))
 })
 
+const getUserWatchHistory = asynchandler(async(req,res)=>{
+const user = await User.aggregate([
+    {
+        $match: {
+            _id: new mongoose.Types.ObjectId(req.user._id)//mongoose don't work here, so we don't get the user id from req.user._id, we get string id from req.user._id and convert it to object id using mongoose.Types.ObjectId, we use difrent approach
+
+        }
+    },
+    {
+        $lookup: {
+            from: "videos",
+            localField: "watchHistory",
+            foreignField: "_id",
+            as: "watchedHistory",
+            pipeline:[
+                {
+                    $lookup:{
+                        from: "users",
+                        localField: "Owner",
+                        foreignField: "_id",
+                        as: "Owner",
+                        Pipeline:[
+                            {//subpipeline to get only required fields from owner, we don't need all the fields from owner, we need only fullName, username and avatar
+                                $project:{
+                                    fullName: 1,
+                                    username: 1,
+                                    avatar: 1
+                                }
+                            },
+                            {
+                                $addFields:{
+                                    Owner:{
+                                        $first:"$Owner"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+
+])
+    return res
+    .status(200).json(new ApiResponse(200,"User watch history fetched successfully",{watchHistory: user[0]?.watchedHistory || []}))
+})
+
+
 export { registerUser,
     loginUser,
     logoutUser,
@@ -350,6 +399,6 @@ export { registerUser,
    updateAccountDetails,
    updateUserAvatar,
    updateUserCoverimage,
-   getUserChannelProfile
-
+   getUserChannelProfile,
+   getUserWatchHistory
  };
