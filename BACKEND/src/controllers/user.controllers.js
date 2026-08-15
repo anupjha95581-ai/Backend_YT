@@ -133,7 +133,7 @@ return res.status(200).cookie("accessToken", accessToken, options).cookie("refre
     
    await User.findByIdAndUpdate(
     req.user._id,{
-        $set: {refreshToken: undefined}
+        $unset: {refreshToken: 1 }//this removes the field from the  document , or set{refreshToken: null} to set it to null or undefined
     },
     {
         new: true,
