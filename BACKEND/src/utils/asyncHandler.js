@@ -1,6 +1,6 @@
-const asynchandler = (requesthandler) => async(req,res,next) => {
+const asyncHandler = (requestHandler) => async(req,res,next) => {
     try{
-await requesthandler(req,res,next);
+await requestHandler(req,res,next);
     }
  catch (error) {
     res.status(error.statusCode || 500).json({
@@ -12,6 +12,6 @@ await requesthandler(req,res,next);
 
 
 
-export default asynchandler;
+export default asyncHandler;
 
 

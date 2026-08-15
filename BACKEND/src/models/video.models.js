@@ -3,7 +3,7 @@ import mongoose, {Schema} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new Schema({
-videofile: {
+videoFile: {
     type: String,// cloudinary url
     required: true,
     unique: true,
@@ -20,7 +20,7 @@ title:{
   
     
 },
-discription:{
+description:{
     type: String,
    
     required: true,
@@ -34,7 +34,7 @@ owner:{
     ref:"User",
     required:true
 },
-ispublished:{
+isPublished:{
     type: Boolean,
     default: true
 },

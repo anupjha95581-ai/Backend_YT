@@ -18,7 +18,7 @@ email:{
     lowercase:true,
     trim:true
 },
-fullname:{
+fullName:{
      type: String,
     required: true,
   
@@ -31,18 +31,18 @@ avatar:{
    
     required: true,
 },
-coverimage:{
+coverImage:{
     type: String,// cloudinary url
     required: true,
 },
 watchHistory:{
     type:[Schema.Types.ObjectId],
-    ref:"video",
+    ref:"Video",
     default: []
 },
 password:{
     type: String,
-    required: [true,' Passwod is Required'],
+    required: [true,' Password is Required'],
 },
 refreshToken:{
     type: String,
@@ -65,7 +65,7 @@ userSchema.methods.generateAccessToken = function(){
         _id: this._id,  
         email: this.email,
         username:this.username,
-        fullname:this.fullname, 
+        fullName:this.fullName, 
     };
     return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,

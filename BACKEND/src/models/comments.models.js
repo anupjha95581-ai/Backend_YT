@@ -17,12 +17,9 @@ const commentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true
-    },
-    timestamps: true
-})
+    }
+}, { timestamps: true })
 
 
 commentSchema.plugin(mongooseAggregatePaginate);
-export const Comment = mongoose.model("Comment", commentSchema); 
-
-export const CommentSchema = mongoose.model("Comment", commentSchema);
+export const Comment = mongoose.model("Comment", commentSchema);

@@ -1,3 +1,31 @@
+# Dependencies
+node_modules/
+BACKEND/node_modules/
+
+# Environment variables
+.env
+.env.*
+BACKEND/.env
+BACKEND/.env.*
+!BACKEND/.env.sample
+
+# Logs and runtime files
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Local editor/temp files
+tempCodeRunnerFile.js
+.vscode/
+.idea/
+
+# Build/cache output
+dist/
+build/
+coverage/
+.cache/
+
 # Logs
 logs
 *.log
@@ -118,3 +146,4 @@ dist
 .pnp.*
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
+

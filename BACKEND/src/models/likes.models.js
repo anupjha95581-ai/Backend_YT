@@ -27,11 +27,9 @@ const likesSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true
-    },
-
-    timestamps: true
-})
+    }
+}, { timestamps: true })
 
 
 
-export const likesSchema = mongoose.model("Likes", likesSchema);
+export const Like = mongoose.model("Like", likesSchema);

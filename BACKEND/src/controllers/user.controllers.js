@@ -1,9 +1,10 @@
-import asynchandler from "../utils/asynchaldler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/apierrors.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"; 
 import { ApiResponse } from "../utils/apiresponse.js";  
 import jwt from "jsonwebtoken"
+import mongoose from "mongoose"
  
 
 const generateTokens = async(userID) => {
@@ -23,16 +24,16 @@ throw new ApiError(500, "Token generation failed");
 }
 
 
-const registerUser = asynchandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
     //get user details from frontend
-    //validation of user details:USERBNAME OR EMAIL
+    //validation of user details:USERNAME OR EMAIL
     // check if user already exists
     //check for images, check for avatar
     //upload them to cloudinary
     //create user object and create entry in db
-    //remove passworfd and refresh token from user object and send response to frontend
+    //remove password and refresh token from user object and send response to frontend
     //check for user creation
-    // return responce
+    // return response
      const { username, email, password, fullName } = req.body;
     console.log("User details received:", { username, email, password, fullName });
 
@@ -62,26 +63,26 @@ const coverFile = uploadedFiles.find((file) =>
     ["cover", "coverImage", "coverimage"].includes(file.fieldname)
 );
 
-const avatarlocalpath = avatarFile?.path;
-const coverlocalpath = coverFile?.path;
+const avatarLocalPath = avatarFile?.path;
+const coverLocalPath = coverFile?.path;
 
 
-    if(!avatarlocalpath || !coverlocalpath){
+    if(!avatarLocalPath || !coverLocalPath){
         throw new ApiError(400, "Avatar and cover image are required");
     }
    
-   const avatar = await uploadOnCloudinary(avatarlocalpath);
-   const coverimage = await uploadOnCloudinary(coverlocalpath);
-    if(!avatar || !coverimage){
+   const avatar = await uploadOnCloudinary(avatarLocalPath);
+   const coverImage = await uploadOnCloudinary(coverLocalPath);
+    if(!avatar || !coverImage){
         throw new ApiError(400, "Image upload failed");
     } 
    const user = await User.create({
         username: username.toLowerCase(),
         email,  
         password,
-       fullname: fullName,
+       fullName,
         avatar: avatar.url,
-        coverimage: coverimage.url,
+        coverImage: coverImage.url,
     })
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
     if(!createdUser){
@@ -92,7 +93,7 @@ const coverlocalpath = coverFile?.path;
 })
 
 
- const loginUser = asynchandler(async (req, res) => {
+ const loginUser = asyncHandler(async (req, res) => {
  // req boy-data
  //username or email
  // find the user
@@ -129,7 +130,7 @@ return res.status(200).cookie("accessToken", accessToken, options).cookie("refre
  });
  
  
- const logoutUser = asynchandler(async (req, res) => {
+ const logoutUser = asyncHandler(async (req, res) => {
     
    await User.findByIdAndUpdate(
     req.user._id,{
@@ -149,7 +150,7 @@ const options = {
         .json(new ApiResponse(200, "Logout successful", {}));
  });
 
- const refreshAccessToken = asynchandler(async (req,res) =>{
+ const refreshAccessToken = asyncHandler(async (req,res) =>{
  const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
 
 if(!incomingRefreshToken){
@@ -162,7 +163,7 @@ if(!incomingRefreshToken){
 )
  const user = await User.findById(decodedToken?._id)
  if(!user){
-    throw new ApiError(401,"ivalid refresh token")
+    throw new ApiError(401,"invalid refresh token")
 }
 if(incomingRefreshToken !== user?.refreshToken){
     throw new ApiError(401,"refresh token is expired or used")
@@ -186,11 +187,11 @@ try {
         )
       )
 } catch (error) {
-    throw new ApiError(400,error?.message || "invalid refres token")
+    throw new ApiError(400,error?.message || "invalid refresh token")
 }
  })
 
-  const changecurrentPassword = asynchandler(async (req,res) =>{
+  const changeCurrentPassword = asyncHandler(async (req,res) =>{
     const {currentPassword,newPassword} = req.body  
 const user = await User.findById(req.user._id)
 const isPasswordCorrect = await user.isPasswordCorrect(currentPassword)
@@ -204,11 +205,11 @@ return res.status(200)
 .json(new ApiResponse(200,"password changed successfully",{}))
   })
 
-  const getcurrentUser = asynchandler(async(req,res)=>{
+  const getCurrentUser = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,"current user fetched successfully",{user: req.user}))
   })
 
-  const updateAccountDetails = asynchandler(async(req,res)=>{
+  const updateAccountDetails = asyncHandler(async(req,res)=>{
     const{fullName,email} = req.body
      if(!fullName || !email){
         throw new ApiError(400,"fullName and email is required")
@@ -229,13 +230,13 @@ return res.status(200)
   })
 
 
-const updateUserAvatar = asynchandler(async(req,res)=>{
-     const avatarlocalPath = req.file?.avatar?.path
-     if(!avatarlocalPath){
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+     const avatarLocalPath = req.file?.path
+     if(!avatarLocalPath){
         throw new ApiError(400,"avatar image is required")
      }
 
-      const avatar = await uploadOnCloudinary(avatarlocalPath)
+      const avatar = await uploadOnCloudinary(avatarLocalPath)
 
       if(!avatar.url){
         throw new ApiError(400,"Error while uploading avatar")
@@ -252,22 +253,22 @@ $set: {
  return res.status(200).json(new ApiResponse(200,"Avatar updated successfully",{user}))
 })
 
-const updateUserCoverimage = asynchandler(async(req,res)=>{
-     const coverimagelocalPath = req.file?.coverimage?.path
-     if(!coverimagelocalPath){
+const updateUserCoverImage = asyncHandler(async(req,res)=>{
+     const coverImageLocalPath = req.file?.path
+     if(!coverImageLocalPath){
         throw new ApiError(400,"cover image is required")
      }
 
-      const coverimage = await uploadOnCloudinary(coverimagelocalPath)
+      const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-      if(!coverimage.url){
+      if(!coverImage.url){
         throw new ApiError(400,"Error while uploading cover image")
       }
 
      const user = await User.findByIdAndUpdate(req.user._id,
      {
 $set: {
-            coverImage: coverimage.url     
+            coverImage: coverImage.url     
 }
      },
      {new: true}
@@ -276,7 +277,7 @@ $set: {
 return res.status(200).json(new ApiResponse(200,"Cover image updated successfully",{user}))
 })
 
-const getUserChannelProfile = asynchandler(async(req,res)=>{
+const getUserChannelProfile = asyncHandler(async(req,res)=>{
 const {username} = req.params
 if(!username?.trim()){
     throw new ApiError(400,"username is required")}
@@ -308,7 +309,7 @@ if(!username?.trim()){
             $addFields:{
                 subscribersCount: {$size: "$subscribers"},
                 subscribedChannelsCount: {$size: "$subscribedChannels"},
-                IsSubscribed:{
+                isSubscribed:{
                     $cond:{
                         if:{$in: [req.user?._id,"$subscribers.subscriber"]},
                         then: true,
@@ -327,7 +328,7 @@ if(!username?.trim()){
             coverImage: 1,
             subscribersCount: 1,
             subscribedChannelsCount: 1,
-            IsSubscribed: 1
+            isSubscribed: 1
         }
 
     }
@@ -341,7 +342,7 @@ if(!username?.trim()){
   .json(new ApiResponse(200,"Channel profile fetched successfully",{channel: channel[0]}))
 })
 
-const getUserWatchHistory = asynchandler(async(req,res)=>{
+const getUserWatchHistory = asyncHandler(async(req,res)=>{
 const user = await User.aggregate([
     {
         $match: {
@@ -359,10 +360,10 @@ const user = await User.aggregate([
                 {
                     $lookup:{
                         from: "users",
-                        localField: "Owner",
+                        localField: "owner",
                         foreignField: "_id",
-                        as: "Owner",
-                        Pipeline:[
+                        as: "owner",
+                        pipeline:[
                             {//subpipeline to get only required fields from owner, we don't need all the fields from owner, we need only fullName, username and avatar
                                 $project:{
                                     fullName: 1,
@@ -372,8 +373,8 @@ const user = await User.aggregate([
                             },
                             {
                                 $addFields:{
-                                    Owner:{
-                                        $first:"$Owner"
+                                    owner:{
+                                        $first:"$owner"
                                     }
                                 }
                             }
@@ -394,11 +395,11 @@ export { registerUser,
     loginUser,
     logoutUser,
    refreshAccessToken,
-   changecurrentPassword,
-   getcurrentUser,
+   changeCurrentPassword,
+   getCurrentUser,
    updateAccountDetails,
    updateUserAvatar,
-   updateUserCoverimage,
+   updateUserCoverImage,
    getUserChannelProfile,
    getUserWatchHistory
  };

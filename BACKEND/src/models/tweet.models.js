@@ -25,11 +25,9 @@ const tweetSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true
-    },
-
-    timestamps: true
-})
+    }
+}, { timestamps: true })
 
 
 
-export const tweetSchema = mongoose.model("Tweet", tweetSchema);
+export const Tweet = mongoose.model("Tweet", tweetSchema);
